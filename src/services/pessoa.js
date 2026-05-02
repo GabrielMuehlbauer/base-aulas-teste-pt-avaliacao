@@ -36,12 +36,18 @@ class ServicoExercicio {
 
       if(!pessoa || Object.keys(pessoa).length === 0) {
         throw new Error("Favor preencher os campos de pessoa.")
+      } else if((pessoa.nome && pessoa.nome.length > 255) || (pessoa.email && pessoa.email.length > 255) || (pessoa.senha && pessoa.senha.length > 255)) {
+        throw new Error("Erro ao registrar no banco de dados")
       } else if(!pessoa.nome || pessoa.nome.trim() === "") {
         throw new Error("Favor preencher o nome.")
+      } else if(regexEmoji.test(pessoa.nome)) {
+        throw new Error("Favor preencher o nome corretamente.")
       } else if(!regexNome.test(pessoa.nome.trim())) {
         throw new Error("Favor preencher o nome corretamente sem simbulos matemáticos.")
       } else if(!pessoa.email || pessoa.email.trim() === "") {
         throw new Error("Favor preencher o email.")
+      } else if(regexEmoji.test(pessoa.email)) {
+        throw new Error("Favor preencher o email corretamente.")
       } else if(!regexEmail.test(pessoa.email.trim()) || pessoa.email.includes("@@") || pessoa.email.includes("..")) {
         throw new Error("Favor preencher o email corretamente.")
       } else if(!pessoa.senha || pessoa.senha.trim() === "") {
@@ -73,18 +79,28 @@ class ServicoExercicio {
         throw new Error("Favor inserir um id existente, com apenas números inteiros maiores que zero")
       }
 
+      const pessoaExistente = await repositorio.PegarUm(id);
+
       const regexNome = /^[a-zA-ZÀ-ÿ\s]+$/;
       const regexEmail = /^[^\s@]+@[^\s@]+\.com$/;
       const regexEmoji = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
 
       if(!pessoa || Object.keys(pessoa).length === 0) {
         throw new Error("Favor preencher os campos de pessoa.")
+      } else if((pessoa.nome && pessoa.nome.length > 255) || (pessoa.email && pessoa.email.length > 255) || (pessoa.senha && pessoa.senha.length > 255)) {
+        throw new Error("Erro ao registrar no banco de dados")
       } else if(!pessoa.nome || pessoa.nome.trim() === "") {
         throw new Error("Favor preencher o nome.")
+      } else if(pessoa.nome.includes("@")) {
+        throw new Error("Favor preencher o nome corretamente.")
+      } else if(regexEmoji.test(pessoa.nome)) {
+        throw new Error("Favor preencher o nome corretamente.")
       } else if(!regexNome.test(pessoa.nome.trim())) {
         throw new Error("Favor preencher o nome corretamente sem simbulos matemáticos.")
       } else if(!pessoa.email || pessoa.email.trim() === "") {
         throw new Error("Favor preencher o email.")
+      } else if(regexEmoji.test(pessoa.email)) {
+        throw new Error("Favor preencher o email corretamente.")
       } else if(!regexEmail.test(pessoa.email.trim()) || pessoa.email.includes("@@") || pessoa.email.includes("..")) {
         throw new Error("Favor preencher o email corretamente.")
       } else if(!pessoa.senha || pessoa.senha.trim() === "") {
@@ -105,6 +121,8 @@ class ServicoExercicio {
         throw new Error("Favor preencher a senha corretamente, sem colocar seu nome.")
       } else if(/(.)\1{3}/.test(pessoa.senha)) {
         throw new Error("Favor preencher a senha corretamente, sem colocar mais de três caracteres iguais.")
+      } else if(pessoaExistente && pessoa.senha === pessoaExistente.senha) {
+        throw new Error("Favor preencher uma senha não utilizada anteriormente.")
       }
 
       const resultado = await repositorio.Alterar(id, pessoa)
